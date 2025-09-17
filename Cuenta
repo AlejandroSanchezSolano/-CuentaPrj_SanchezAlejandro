@@ -1,0 +1,82 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Cuenta {
+
+    private String codCuenta = "cta-";
+    private double saldo;
+    private String nombreCuentaHabiente;
+    private String fechaCreacion;
+    private int cantDepositosRealizados;
+    private int cantRetirosExitososRealizados;
+
+    private static int cantCuentasCreadas = 0;
+
+    public Cuenta(String nombreCuentaHabiente, double pSaldo) {
+        this.codCuenta = "cta-" + String.format("%04d", ++cantCuentasCreadas);
+
+        this.saldo = Math.max(0, pSaldo);
+
+        setNombreCuentaHabiente(nombreCuentaHabiente);
+
+        this.fechaCreacion = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+    }
+
+    public Cuenta(double pSaldo) {
+        this("PENDIENTE", pSaldo);
+    }
+
+    public void setNombreCuentaHabiente(String pNombreCuentaHabiente) {
+        if (pNombreCuentaHabiente != null && !pNombreCuentaHabiente.trim().isEmpty()) {
+            this.nombreCuentaHabiente = pNombreCuentaHabiente.trim();
+        } else {
+            this.nombreCuentaHabiente = "PENDIENTE";
+        }
+    }
+
+    public String getCodCuenta() {
+        return codCuenta;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public double depositar(double monto) {
+        if (monto > 0) {
+            this.saldo += monto;
+            this.cantDepositosRealizados++;
+        }
+        return this.saldo;
+    }
+
+    public double retirar(double monto) {
+        if (validarRetiro(monto)) {
+            this.saldo -= monto;
+            this.cantRetirosExitososRealizados++;
+        }
+        return this.saldo;
+    }
+
+    public boolean validarRetiro(double monto) {
+        return monto > 0 && monto <= this.saldo;
+    }
+
+    public static int getCantCuentasCreadas() {
+        return cantCuentasCreadas;
+    }
+
+    @Override
+    public String toString() {
+        return "Cuenta{" +
+                "codCuenta='" + codCuenta + '\'' +
+                ", saldo=" + saldo +
+                ", nombreCuentaHabiente='" + nombreCuentaHabiente + '\'' +
+                ", fechaCreacion='" + fechaCreacion + '\'' +
+                ", cantDepositosRealizados=" + cantDepositosRealizados +
+                ", cantRetirosExitososRealizados=" + cantRetirosExitososRealizados +
+                '}';
+    }
+}
