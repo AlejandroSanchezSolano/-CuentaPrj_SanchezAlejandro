@@ -1,0 +1,160 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class PrincipalCuenta {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        List<Cuenta> cuentas = new ArrayList<>();
+        int actual = -1; // índice de la cuenta seleccionada
+
+        boolean salir = false;
+        while (!salir) {
+            System.out.println("\nMenú principal");
+            System.out.println("1) Crear Cuenta");
+            System.out.println("2) Conocer la cantidad de Cuentas Creadas");
+            System.out.println("3) Listar Cuentas");
+            System.out.println("4) Seleccionar Cuenta actual");
+            System.out.println("5) Depositar");
+            System.out.println("6) Retirar");
+            System.out.println("7) Consultar Saldo");
+            System.out.println("8) Consultar Estado (toString)");
+            System.out.println("0) Salir");
+            System.out.print("Opción: ");
+            String op = sc.nextLine().trim();
+
+            switch (op) {
+                case "1": { // Crear Cuenta
+                    System.out.println("\nCrear cuenta:");
+                    System.out.println("a) Constructor (saldo)");
+                    System.out.println("b) Constructor (nombre, saldo)");
+                    System.out.print("Elija a/b: ");
+                    String tipo = sc.nextLine().trim().toLowerCase();
+
+                    try {
+                        if ("a".equals(tipo)) {
+                            System.out.print("Saldo inicial: ");
+                            double s = Double.parseDouble(sc.nextLine());
+                            Cuenta c = new Cuenta(s);
+                            // Requisito iv: ofrecer completar el nombre si usó el ctor de 1 parámetro
+                            System.out.print("¿Desea indicar ahora el nombre del cuentahabiente? (s/n): ");
+                            if (sc.nextLine().trim().equalsIgnoreCase("s")) {
+                                System.out.print("Nombre: ");
+                                c.setNombreCuentaHabiente(sc.nextLine());
+                            }
+                            cuentas.add(c);
+                            System.out.println("Cuenta creada: " + c.getCodCuenta());
+                        } else if ("b".equals(tipo)) {
+                            System.out.print("Nombre cuentahabiente: ");
+                            String n = sc.nextLine();
+                            System.out.print("Saldo inicial: ");
+                            double s = Double.parseDouble(sc.nextLine());
+                            Cuenta c = new Cuenta(n, s);
+                            cuentas.add(c);
+                            System.out.println("Cuenta creada: " + c.getCodCuenta());
+                        } else {
+                            System.out.println("Opción inválida.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Saldo inválido.");
+                    }
+                    break;
+                }
+
+                case "2": { // Cantidad de cuentas creadas (estático)
+                    System.out.println("Cuentas creadas: " + Cuenta.getCantCuentasCreadas());
+                    break;
+                }
+
+                case "3": { // Listar Cuentas (resumen)
+                    if (cuentas.isEmpty()) {
+                        System.out.println("No hay cuentas.");
+                    } else {
+                        System.out.println("\nListado:");
+                        for (int i = 0; i < cuentas.size(); i++) {
+                            Cuenta c = cuentas.get(i);
+                            System.out.printf("%d) %s | Saldo: %.2f%n",
+                                    i, c.getCodCuenta(), c.getSaldo());
+                        }
+                    }
+                    break;
+                }
+
+                case "4": { // Seleccionar actual
+                    if (cuentas.isEmpty()) { System.out.println("No hay cuentas."); break; }
+                    System.out.print("Índice de la cuenta: ");
+                    try {
+                        int idx = Integer.parseInt(sc.nextLine());
+                        if (idx >= 0 && idx < cuentas.size()) {
+                            actual = idx;
+                            System.out.println("Cuenta actual: " + cuentas.get(actual).getCodCuenta());
+                            if (cuentas.get(actual).toString().contains("nombreCuentaHabiente='PENDIENTE'")) {
+                                System.out.print("El nombre está 'PENDIENTE'. ¿Desea asignarlo ahora? (s/n): ");
+                                if (sc.nextLine().trim().equalsIgnoreCase("s")) {
+                                    System.out.print("Nombre: ");
+                                    cuentas.get(actual).setNombreCuentaHabiente(sc.nextLine());
+                                    System.out.println("Nombre actualizado.");
+                                }
+                            }
+                        } else {
+                            System.out.println("Índice fuera de rango.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Índice inválido.");
+                    }
+                    break;
+                }
+
+                case "5": { // Depositar
+                    if (actual == -1) { System.out.println("Seleccione una cuenta primero (4)."); break; }
+                    System.out.print("Monto a depositar: ");
+                    try {
+                        double m = Double.parseDouble(sc.nextLine());
+                        double nuevo = cuentas.get(actual).depositar(m);
+                        System.out.printf("Saldo tras depósito: %.2f%n", nuevo);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Monto inválido.");
+                    }
+                    break;
+                }
+
+                case "6": { // Retirar
+                    if (actual == -1) { System.out.println("Seleccione una cuenta primero (4)."); break; }
+                    System.out.print("Monto a retirar: ");
+                    try {
+                        double m = Double.parseDouble(sc.nextLine());
+                        double nuevo = cuentas.get(actual).retirar(m);
+                        System.out.printf("Saldo tras retiro: %.2f%n", nuevo);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Monto inválido.");
+                    }
+                    break;
+                }
+
+                case "7": { // Consultar Saldo
+                    if (actual == -1) { System.out.println("Seleccione una cuenta primero (4)."); break; }
+                    System.out.printf("Saldo actual: %.2f%n", cuentas.get(actual).getSaldo());
+                    break;
+                }
+
+                case "8": { // toString (estado completo)
+                    if (actual == -1) { System.out.println("Seleccione una cuenta primero (4)."); break; }
+                    System.out.println(cuentas.get(actual).toString());
+                    break;
+                }
+
+                case "0": {
+                    salir = true;
+                    break;
+                }
+
+                default:
+                    System.out.println("Opción inválida.");
+            }
+        }
+
+        sc.close();
+        System.out.println("Hasta luego");
+    }
+}
